@@ -2,11 +2,10 @@ require('dotenv').config()
 
 module.exports = {
 
-  // ── MEGA Credentials ──────────────────────
-  mega: {
-    email: process.env.MEGA_EMAIL || 'your_mega_email@gmail.com',
-    password: process.env.MEGA_PASSWORD || 'your_mega_password',
-    folder: 'HANS-SESSIONS',
+  // ── MongoDB Configuration ──────────────────
+  mongo: {
+    url: process.env.MONGODB_URL || '',
+    collection: 'sessions',
   },
 
   // ── Bot Identity ──────────────────────────

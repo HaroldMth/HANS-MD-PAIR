@@ -3,6 +3,7 @@ const cors = require('cors')
 const path = require('path')
 const config = require('./config')
 const { startPairingCode, startQRSession } = require('./lib/pairer')
+const { getSession } = require('./lib/mongoStore')
 
 const app = express()
 app.use(cors())
@@ -103,6 +104,42 @@ app.get('/api/pair/qr', (req, res) => {
     send('error', err.message || 'Failed to start QR session')
     cleanup()
   })
+})
+
+// ─── GET /session/:id ──────────────────────────────────────────────────────────
+// Public endpoint for bots to fetch their session data
+app.get('/session/:id', async (req, res) => {
+  const sessionId = req.params.id
+  try {
+    const data = await getSession(sessionId)
+    if (!data) return res.status(404).json({ error: 'Session not found' })
+    return res.json(data)
+  } catch (err) {
+    return res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+// ─── GET /api/test-db ────────────────────────────────────────────────────────
+// Test connectivity to MongoDB and list basic stats
+app.get('/api/test-db', async (req, res) => {
+  const { MongoClient } = require('mongodb')
+  const client = new MongoClient(config.mongo.url)
+  try {
+    await client.connect()
+    const db = client.db()
+    const collection = db.collection(config.mongo.collection)
+    const count = await collection.countDocuments()
+    return res.json({ 
+      status: 'success', 
+      message: 'MongoDB connection successful',
+      collection: config.mongo.collection,
+      sessionCount: count 
+    })
+  } catch (err) {
+    return res.status(500).json({ status: 'error', message: err.message })
+  } finally {
+    await client.close()
+  }
 })
 
 // ─── GET / ────────────────────────────────────────────────────────────────────
