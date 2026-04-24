@@ -20,5 +20,5 @@ module.exports = {
   port: process.env.PORT || 3000,
 
   // ── Session cleanup (ms after pairing) ────
-  sessionCleanupDelay: 60_000, 
+  sessionCleanupDelay: 600_000, 
 }
